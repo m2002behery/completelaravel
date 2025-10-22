@@ -11,3 +11,6 @@ Route::get('/', function () {
 // Simple registration routes (minimal, no scaffolding)
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
+Route::get('/pending', function () {
+    return view('auth.pending');
+})->name('pending');

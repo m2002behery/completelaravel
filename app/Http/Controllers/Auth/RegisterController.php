@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class RegisterController extends Controller
 {
@@ -23,8 +24,9 @@ class RegisterController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'supdomin' => ['nullable', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:50'],
+            'subdomain' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:20'],
+
         ]);
 
         if ($validator->fails()) {
@@ -35,12 +37,33 @@ class RegisterController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => $data['password'],
-            'supdomin' => $data['supdomin'] ?? null,
-            'phone' => $data['phone'] ?? null,
+            'supdomin' => $data['supdomin'] ,
+            'phone' => $data['phone'] ,
         ]);
 
         // Optionally, log the user in. Leaving out for simplicity.
 
         return redirect('/')->with('status', 'Registration successful.');
+    }
+
+    protected function create(array $data)
+    {
+        return \App\Models\User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => $data['password'],
+            'status' => 'pending', // المستخدم لسه تحت المراجعة
+            'supdomin' => $data['supdomin'],
+            'phone' => $data['phone'],
+        ]);
+    }
+
+    protected function registered(Request $request, $user)
+    {
+        // سجل خروج المستخدم بعد التسجيل
+        Auth::logout();
+
+        // رجّعه بصفحة فيها رسالة
+        return redirect()->route('pending');
     }
 }
