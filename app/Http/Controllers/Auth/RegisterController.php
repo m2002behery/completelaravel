@@ -24,7 +24,7 @@ class RegisterController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'subdomain' => ['required', 'string', 'max:255'],
+            'supdomin' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:20'],
 
         ]);
@@ -36,14 +36,16 @@ class RegisterController extends Controller
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => $data['password'],
-            'supdomin' => $data['supdomin'] ,
-            'phone' => $data['phone'] ,
+            'password' => Hash::make($data['password']),
+            'supdomin' => $data['supdomin'],
+            'phone' => $data['phone'],
+            'status' => 'pending',
         ]);
 
-        // Optionally, log the user in. Leaving out for simplicity.
+    // Optionally, log the user in. Leaving out for simplicity.
 
-        return redirect('/')->with('status', 'Registration successful.');
+    // Redirect to the pending page and flash a status message so the user sees it
+    return redirect()->route('pending')->with('status', 'تم استلام طلبك بنجاح. سيتم مراجعته من قبل الإدارة.');
     }
 
     protected function create(array $data)
@@ -51,7 +53,7 @@ class RegisterController extends Controller
         return \App\Models\User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => $data['password'],
+            'password' => Hash::make($data['password']),
             'status' => 'pending', // المستخدم لسه تحت المراجعة
             'supdomin' => $data['supdomin'],
             'phone' => $data['phone'],
